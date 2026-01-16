@@ -53,25 +53,49 @@ export function initializeFormDefaults() {
 }
 
 /**
- * Affiche un message de succès
+ * Affiche un message de succès dans une modale
  * @param {{ message: string }} params
  * @returns {void}
  */
 export function showSuccessMessage({ message }) {
-  const existing = document.querySelector('.success-message');
+  const existing = document.querySelector('.success-modal');
   if (existing) {
     existing.remove();
   }
 
-  const messageDiv = document.createElement('div');
-  messageDiv.className = 'success-message';
-  messageDiv.textContent = message;
-  
-  const form = document.getElementById('mood-form');
-  if (form) {
-    form.parentElement?.insertBefore(messageDiv, form);
-    setTimeout(() => {
-      messageDiv.remove();
-    }, 3000);
-  }
+  const modal = document.createElement('div');
+  modal.className = 'success-modal';
+  modal.style.display = 'flex';
+
+  const modalContent = document.createElement('div');
+  modalContent.className = 'success-modal-content';
+
+  const closeButton = document.createElement('span');
+  closeButton.className = 'success-modal-close';
+  closeButton.textContent = '×';
+  closeButton.addEventListener('click', () => {
+    modal.remove();
+  });
+
+  const messageText = document.createElement('div');
+  messageText.className = 'success-modal-message';
+  messageText.textContent = message;
+
+  const icon = document.createElement('div');
+  icon.className = 'success-modal-icon';
+  icon.textContent = '✓';
+
+  modalContent.appendChild(closeButton);
+  modalContent.appendChild(icon);
+  modalContent.appendChild(messageText);
+  modal.appendChild(modalContent);
+
+  document.body.appendChild(modal);
+
+  // Fermer en cliquant sur le fond
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
 }

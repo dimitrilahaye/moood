@@ -179,14 +179,85 @@ h1 {
   box-shadow: 0 4px 8px rgba(128, 90, 213, 0.4);
 }
 
-.success-message {
-  background: #c6f6d5;
-  color: #22543d;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.success-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.success-modal-content {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   text-align: center;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.success-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #718096;
+  line-height: 1;
+  transition: color 0.3s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.success-modal-close:hover {
+  color: #2d3748;
+  background: #f7fafc;
+}
+
+.success-modal-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+.success-modal-message {
+  color: #2d3748;
+  font-size: 1.1rem;
   font-weight: 500;
+  line-height: 1.5;
 }
 
 .moods-list-section {
@@ -493,15 +564,6 @@ h1 {
   box-shadow: 0 4px 8px rgba(128, 90, 213, 0.4);
 }
 
-.copy-message {
-  background: #c6f6d5;
-  color: #22543d;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-weight: 500;
-}
 
 .pie-chart-container {
   margin: 2rem 0;

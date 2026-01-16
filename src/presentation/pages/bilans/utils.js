@@ -535,20 +535,44 @@ function createProgressionChart({ moods, period, date, startDate, endDate }) {
  * @returns {void}
  */
 export function showCopyMessage({ message }) {
-  const existing = document.querySelector('.copy-message');
+  const existing = document.querySelector('.success-modal');
   if (existing) {
     existing.remove();
   }
 
-  const messageDiv = document.createElement('div');
-  messageDiv.className = 'copy-message';
-  messageDiv.textContent = message;
+  const modal = document.createElement('div');
+  modal.className = 'success-modal';
+  modal.style.display = 'flex';
 
-  const copyButton = document.getElementById('copy-button');
-  if (copyButton) {
-    copyButton.parentElement?.insertBefore(messageDiv, copyButton);
-    setTimeout(() => {
-      messageDiv.remove();
-    }, 3000);
-  }
+  const modalContent = document.createElement('div');
+  modalContent.className = 'success-modal-content';
+
+  const closeButton = document.createElement('span');
+  closeButton.className = 'success-modal-close';
+  closeButton.textContent = '×';
+  closeButton.addEventListener('click', () => {
+    modal.remove();
+  });
+
+  const messageText = document.createElement('div');
+  messageText.className = 'success-modal-message';
+  messageText.textContent = message;
+
+  const icon = document.createElement('div');
+  icon.className = 'success-modal-icon';
+  icon.textContent = '✓';
+
+  modalContent.appendChild(closeButton);
+  modalContent.appendChild(icon);
+  modalContent.appendChild(messageText);
+  modal.appendChild(modalContent);
+
+  document.body.appendChild(modal);
+
+  // Fermer en cliquant sur le fond
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
 }

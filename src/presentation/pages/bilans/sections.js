@@ -80,16 +80,27 @@ export function createBilansSection() {
   bilanContent.className = 'bilan-content';
   bilanContent.id = 'bilan-content';
 
+  const actionsContainer = document.createElement('div');
+  actionsContainer.className = 'bilan-actions';
+
   const copyButton = document.createElement('button');
   copyButton.className = 'copy-button';
   copyButton.textContent = 'Copier dans le presse-papier';
   copyButton.id = 'copy-button';
 
+  const pdfButton = document.createElement('button');
+  pdfButton.className = 'pdf-button';
+  pdfButton.textContent = 'Télécharger en PDF';
+  pdfButton.id = 'pdf-button';
+
+  actionsContainer.appendChild(copyButton);
+  actionsContainer.appendChild(pdfButton);
+
   section.appendChild(title);
   section.appendChild(periodSelector);
   section.appendChild(dateSelector);
   section.appendChild(bilanContent);
-  section.appendChild(copyButton);
+  section.appendChild(actionsContainer);
 
   return section;
 }

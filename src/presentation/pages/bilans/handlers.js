@@ -51,3 +51,13 @@ export function createCopyButtonHandler({ onCopy }) {
     onCopy();
   };
 }
+
+/**
+ * @returns {(e: Event) => void}
+ */
+export function createPdfButtonHandler() {
+  return (e) => {
+    e.preventDefault();
+    window.print();
+  };
+}

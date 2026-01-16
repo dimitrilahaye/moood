@@ -545,8 +545,16 @@ h1 {
   font-size: 0.9rem;
 }
 
-.copy-button {
-  width: 100%;
+.bilan-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.copy-button,
+.pdf-button {
+  flex: 1;
+  min-width: 200px;
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
   color: white;
@@ -559,7 +567,8 @@ h1 {
   box-shadow: 0 2px 4px rgba(128, 90, 213, 0.3);
 }
 
-.copy-button:hover {
+.copy-button:hover,
+.pdf-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(128, 90, 213, 0.4);
 }
@@ -650,6 +659,72 @@ h1 {
 
 .progression-line:hover {
   stroke-width: 4;
+}
+
+@media print {
+  body {
+    background: white;
+    padding: 0;
+    padding-bottom: 0;
+  }
+
+  .main-navigation,
+  .period-selector,
+  .date-selector,
+  .bilan-actions {
+    display: none !important;
+  }
+
+  .bilans-section {
+    background: white;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .pie-chart-container,
+  .progression-chart-container {
+    background: white;
+    box-shadow: none;
+    padding: 1rem 0;
+    page-break-inside: avoid;
+  }
+
+  .pie-chart-wrapper {
+    flex-wrap: nowrap;
+  }
+
+  .pie-chart-legend {
+    min-width: 250px;
+  }
+
+  .progression-chart {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .progression-chart-wrapper {
+    overflow: visible;
+  }
+
+  .bilan-content {
+    page-break-inside: avoid;
+  }
+
+  .bilan-list {
+    page-break-inside: avoid;
+  }
+
+  .bilan-item {
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  .chart-title {
+    color: #2d3748 !important;
+  }
 }
 
 @media (max-width: 768px) {

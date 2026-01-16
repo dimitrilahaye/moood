@@ -2,7 +2,7 @@
 
 import { BILANS_CONFIG, BILANS_MESSAGES } from './constants.js';
 import { createNavigationSection, createBilansSection } from './sections.js';
-import { createPeriodButtonHandler, createDateChangeHandler, createCopyButtonHandler } from './handlers.js';
+import { createPeriodButtonHandler, createDateChangeHandler, createCopyButtonHandler, createPdfButtonHandler } from './handlers.js';
 import { renderBilanContent, attachNavigationHandlers, initializeDateInput, showCopyMessage, formatBilanText } from './utils.js';
 
 /**
@@ -64,31 +64,6 @@ export async function renderBilansPage({ root, params, deps }) {
       startDate,
       endDate
     });
-
-    const copyButton = document.getElementById('copy-button');
-    if (copyButton) {
-      const copyHandler = createCopyButtonHandler({
-        onCopy: async () => {
-          const text = formatBilanText({
-            moods,
-            moodOptions: BILANS_CONFIG.moodOptions,
-            period: currentPeriod,
-            date: currentDate,
-            startDate,
-            endDate
-          });
-
-          try {
-            await navigator.clipboard.writeText(text);
-            showCopyMessage({ message: BILANS_MESSAGES.copySuccess });
-          } catch (error) {
-            console.error('Erreur lors de la copie:', error);
-            showCopyMessage({ message: BILANS_MESSAGES.copyError });
-          }
-        }
-      });
-      copyButton.addEventListener('click', copyHandler);
-    }
   };
 
   const periodButtons = document.querySelectorAll('.period-button');
@@ -114,6 +89,69 @@ export async function renderBilansPage({ root, params, deps }) {
   }
 
   await loadBilan();
+
+  const copyButton = document.getElementById('copy-button');
+  if (copyButton) {
+    const copyHandler = createCopyButtonHandler({
+      onCopy: async () => {
+        let moods;
+        let startDate;
+        let endDate;
+
+        if (currentPeriod === 'day') {
+          moods = await deps.moodsUseCase.getByDate({ date: currentDate });
+        } else if (currentPeriod === 'week') {
+          const weekStart = new Date(currentDate);
+          const dayOfWeek = weekStart.getDay();
+          const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+          weekStart.setDate(weekStart.getDate() + diff);
+          weekStart.setHours(0, 0, 0, 0);
+          startDate = new Date(weekStart);
+          
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekEnd.getDate() + 6);
+          weekEnd.setHours(23, 59, 59, 999);
+          endDate = new Date(weekEnd);
+          
+          moods = await deps.moodsUseCase.getByWeek({ weekStart });
+        } else {
+          const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+          monthStart.setHours(0, 0, 0, 0);
+          startDate = new Date(monthStart);
+          
+          const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+          monthEnd.setHours(23, 59, 59, 999);
+          endDate = new Date(monthEnd);
+          
+          moods = await deps.moodsUseCase.getByMonth({ monthStart });
+        }
+
+        const text = formatBilanText({
+          moods,
+          moodOptions: BILANS_CONFIG.moodOptions,
+          period: currentPeriod,
+          date: currentDate,
+          startDate,
+          endDate
+        });
+
+        try {
+          await navigator.clipboard.writeText(text);
+          showCopyMessage({ message: BILANS_MESSAGES.copySuccess });
+        } catch (error) {
+          console.error('Erreur lors de la copie:', error);
+          showCopyMessage({ message: BILANS_MESSAGES.copyError });
+        }
+      }
+    });
+    copyButton.addEventListener('click', copyHandler);
+  }
+
+  const pdfButton = document.getElementById('pdf-button');
+  if (pdfButton) {
+    const pdfHandler = createPdfButtonHandler();
+    pdfButton.addEventListener('click', pdfHandler);
+  }
 
   attachNavigationHandlers({
     onNavigate: (path) => {

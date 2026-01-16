@@ -5,6 +5,8 @@
  * @property {string} [page] - Nom de la page
  */
 
+const BASE_PATH = '/moood';
+
 /**
  * Router simple pour gérer la navigation
  * @param {{ deps: ReturnType<import('./compose/compose.js').compose> }} params
@@ -15,7 +17,10 @@ export function createRouter({ deps }) {
    * @returns {void}
    */
   function navigate(path) {
-    window.history.pushState({}, '', path);
+    // S'assurer que le path commence par / et ajouter le base path
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    const fullPath = `${BASE_PATH}${normalizedPath}`;
+    window.history.pushState({}, '', fullPath);
     handleRoute();
   }
 
@@ -23,7 +28,19 @@ export function createRouter({ deps }) {
    * @returns {Promise<void>}
    */
   async function handleRoute() {
-    const path = window.location.pathname.replace('/moood', '') || '/';
+    // Extraire le path en retirant le base path
+    let fullPath = window.location.pathname;
+    
+    // Si l'URL ne contient pas le base path, rediriger vers la version avec base path
+    if (!fullPath.startsWith(BASE_PATH)) {
+      // Rediriger vers /moood + le path actuel (ou /moood/ si racine)
+      const targetPath = fullPath === '/' || fullPath === '' ? '/' : fullPath;
+      const newFullPath = `${BASE_PATH}${targetPath}`;
+      window.history.replaceState({}, '', newFullPath);
+      fullPath = newFullPath;
+    }
+    
+    const path = fullPath.replace(BASE_PATH, '') || '/';
     const root = document.getElementById('app');
 
     if (!root) {

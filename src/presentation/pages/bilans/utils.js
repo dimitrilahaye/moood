@@ -116,6 +116,9 @@ export function renderBilanContent({ moods, moodOptions, period, date, startDate
   const chartContainer = createPieChart({ moods, moodOptions });
   container.appendChild(chartContainer);
 
+  const progressionChart = createProgressionChart({ moods, period, date, startDate, endDate });
+  container.appendChild(progressionChart);
+
   const list = document.createElement('div');
   list.className = 'bilan-list';
 
@@ -291,6 +294,237 @@ function createPieChart({ moods, moodOptions }) {
   });
 
   chartWrapper.appendChild(legend);
+  container.appendChild(chartWrapper);
+
+  return container;
+}
+
+/**
+ * Crée un graphique de progression des émotions dans le temps
+ * @param {{ moods: Mood[], period: string, date: Date, startDate?: Date, endDate?: Date }} params
+ * @returns {HTMLElement}
+ */
+function createProgressionChart({ moods, period, date, startDate, endDate }) {
+  const container = document.createElement('div');
+  container.className = 'progression-chart-container';
+
+  if (moods.length === 0) {
+    return container;
+  }
+
+  let dataPoints = [];
+  let xLabels = [];
+  let xAxisLabel = '';
+
+  if (period === 'day') {
+    // Moyenne par heure (0-23)
+    const hourlyData = {};
+    for (let h = 0; h < 24; h++) {
+      hourlyData[h] = [];
+    }
+
+    moods.forEach(mood => {
+      const moodDate = new Date(mood.datetime);
+      const hour = moodDate.getHours();
+      hourlyData[hour].push(mood.note);
+    });
+
+    for (let h = 0; h < 24; h++) {
+      const hourMoods = hourlyData[h];
+      const avg = hourMoods.length > 0 
+        ? hourMoods.reduce((sum, n) => sum + n, 0) / hourMoods.length 
+        : null;
+      dataPoints.push(avg);
+      xLabels.push(`${String(h).padStart(2, '0')}h`);
+    }
+    xAxisLabel = 'Heures';
+  } else if (period === 'week' && startDate) {
+    // Moyenne par jour de la semaine (lundi-dimanche)
+    const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    const dailyData = {};
+    
+    for (let d = 0; d < 7; d++) {
+      dailyData[d] = [];
+    }
+
+    moods.forEach(mood => {
+      const moodDate = new Date(mood.datetime);
+      const dayOfWeek = moodDate.getDay();
+      const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 0 = lundi
+      dailyData[adjustedDay].push(mood.note);
+    });
+
+    for (let d = 0; d < 7; d++) {
+      const dayMoods = dailyData[d];
+      const avg = dayMoods.length > 0 
+        ? dayMoods.reduce((sum, n) => sum + n, 0) / dayMoods.length 
+        : null;
+      dataPoints.push(avg);
+      xLabels.push(dayNames[d]);
+    }
+    xAxisLabel = 'Jours de la semaine';
+  } else if (period === 'month' && startDate && endDate) {
+    // Moyenne par jour du mois
+    const dailyData = {};
+    const daysInMonth = endDate.getDate();
+    
+    for (let d = 1; d <= daysInMonth; d++) {
+      dailyData[d] = [];
+    }
+
+    moods.forEach(mood => {
+      const moodDate = new Date(mood.datetime);
+      const day = moodDate.getDate();
+      dailyData[day].push(mood.note);
+    });
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayMoods = dailyData[d];
+      const avg = dayMoods.length > 0 
+        ? dayMoods.reduce((sum, n) => sum + n, 0) / dayMoods.length 
+        : null;
+      dataPoints.push(avg);
+      xLabels.push(String(d));
+    }
+    xAxisLabel = 'Jours du mois';
+  } else {
+    return container;
+  }
+
+  const title = document.createElement('h3');
+  title.textContent = 'Progression des émotions';
+  title.className = 'chart-title';
+  container.appendChild(title);
+
+  const chartWrapper = document.createElement('div');
+  chartWrapper.className = 'progression-chart-wrapper';
+
+  const width = Math.max(600, xLabels.length * 40);
+  const height = 300;
+  const padding = { top: 20, right: 20, bottom: 60, left: 60 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('class', 'progression-chart');
+
+  // Y-axis (notes 1-5)
+  const yMin = 1;
+  const yMax = 5;
+  const ySteps = 4;
+
+  // Grille horizontale
+  for (let i = 0; i <= ySteps; i++) {
+    const y = padding.top + (chartHeight / ySteps) * i;
+    const value = yMax - (yMax - yMin) * (i / ySteps);
+    
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', String(padding.left));
+    line.setAttribute('y1', String(y));
+    line.setAttribute('x2', String(width - padding.right));
+    line.setAttribute('y2', String(y));
+    line.setAttribute('stroke', '#e2e8f0');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(padding.left - 10));
+    text.setAttribute('y', String(y + 5));
+    text.setAttribute('text-anchor', 'end');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('fill', '#718096');
+    text.textContent = value.toFixed(1);
+    svg.appendChild(text);
+  }
+
+  // Y-axis label
+  const yAxisLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  yAxisLabel.setAttribute('x', String(padding.left - 30));
+  yAxisLabel.setAttribute('y', String(height / 2));
+  yAxisLabel.setAttribute('text-anchor', 'middle');
+  yAxisLabel.setAttribute('font-size', '14');
+  yAxisLabel.setAttribute('fill', '#4a5568');
+  yAxisLabel.setAttribute('transform', `rotate(-90 ${padding.left - 30} ${height / 2})`);
+  yAxisLabel.textContent = 'Note moyenne';
+  svg.appendChild(yAxisLabel);
+
+  // Données
+  const validDataPoints = dataPoints.filter(d => d !== null);
+  if (validDataPoints.length === 0) {
+    return container;
+  }
+
+  const xStep = xLabels.length > 1 ? chartWidth / (xLabels.length - 1) : 0;
+  const yScale = chartHeight / (yMax - yMin);
+
+  // Ligne de progression
+  const pathPoints = dataPoints
+    .map((value, index) => {
+      if (value === null) return null;
+      const x = padding.left + index * xStep;
+      const y = padding.top + chartHeight - (value - yMin) * yScale;
+      return { x, y };
+    })
+    .filter(p => p !== null);
+
+  if (pathPoints.length > 0) {
+    const pathCommands = pathPoints.map((point, index) => {
+      return index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`;
+    });
+    const pathData = pathCommands.join(' ');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', '#805ad5');
+    path.setAttribute('stroke-width', '3');
+    path.setAttribute('class', 'progression-line');
+    svg.appendChild(path);
+  }
+
+  // Points
+  dataPoints.forEach((value, index) => {
+    if (value === null) return;
+    const x = padding.left + index * xStep;
+    const y = padding.top + chartHeight - (value - yMin) * yScale;
+    
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', String(x));
+    circle.setAttribute('cy', String(y));
+    circle.setAttribute('r', '4');
+    circle.setAttribute('fill', '#805ad5');
+    circle.setAttribute('stroke', 'white');
+    circle.setAttribute('stroke-width', '2');
+    svg.appendChild(circle);
+  });
+
+  // X-axis labels
+  xLabels.forEach((label, index) => {
+    const x = padding.left + index * xStep;
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(x));
+    text.setAttribute('y', String(height - padding.bottom + 20));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-size', '11');
+    text.setAttribute('fill', '#718096');
+    text.textContent = label;
+    svg.appendChild(text);
+  });
+
+  // X-axis label
+  const xAxisLabelElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  xAxisLabelElement.setAttribute('x', String(width / 2));
+  xAxisLabelElement.setAttribute('y', String(height - 10));
+  xAxisLabelElement.setAttribute('text-anchor', 'middle');
+  xAxisLabelElement.setAttribute('font-size', '14');
+  xAxisLabelElement.setAttribute('fill', '#4a5568');
+  xAxisLabelElement.textContent = xAxisLabel;
+  svg.appendChild(xAxisLabelElement);
+
+  chartWrapper.appendChild(svg);
   container.appendChild(chartWrapper);
 
   return container;

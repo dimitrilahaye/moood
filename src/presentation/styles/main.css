@@ -565,6 +565,31 @@ h1 {
   font-size: 0.95rem;
 }
 
+.progression-chart-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+}
+
+.progression-chart-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.progression-chart {
+  min-width: 600px;
+  display: block;
+}
+
+.progression-line {
+  transition: stroke-width 0.3s ease;
+}
+
+.progression-line:hover {
+  stroke-width: 4;
+}
+
 @media (max-width: 600px) {
   .datetime-container {
     grid-template-columns: 1fr;

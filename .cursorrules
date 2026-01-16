@@ -1,0 +1,327 @@
+# Moood — Cursor Rules
+
+## Raison d'être
+Moood permet de noter ses émotions au fil de chaque jour. Et ainsi pouvoir observer la progression de ses humeurs jour par jour.
+
+## UX
+Tons pastels, calme, sérénité.
+Barème des mooods :
+
+| Note | État d'esprit | Émotion dominante | Couleur | Pastille |
+| --- | --- | --- | --- | --- |
+| **5** | Génial | Joie, gratitude, énergie | Vert vif | 🟢 |
+| **4** | Bien | Calme, satisfaction, sérénité | Vert clair | 🟢 |
+| **3** | Neutre | Fatigue légère, routine, "ça va" | Jaune / Beige | 🟡 |
+| **2** | Bof | Stress, tristesse, agacement | Orange | 🟠 |
+| **1** | Mauvais | Colère, déprime, épuisement | Rouge | 🔴 |
+
+## Architecture (3 couches + inversion de dépendances)
+- Dossiers sous `src/`:
+  - `core/`: règles métier pures (entités, types, services, use-cases). Aucune dépendance DOM/Storage.
+  - `datasource/`: persistance via LocalStorage. Implémente les interfaces (ports) définies par `core/`.
+  - `presentation/`: gestion du DOM (event listeners, éléments, MAJ du DOM). Consomme les interfaces `core/` via injection.
+- Inversion de dépendances:
+  - `core/` expose des interfaces (ports) pour les accès données et l'aléatoire.
+  - `datasource/` fournit les adaptateurs qui implémentent ces ports.
+  - `presentation/` compose le tout (composition root) et injecte les implémentations dans les use-cases `core/`.
+- Règles d'import:
+  - `core` → importe seulement `core`.
+  - `datasource` → peut importer `core`, jamais `presentation`.
+  - `presentation` → peut importer `core` et la composition, jamais directement `datasource`.
+- **OBLIGATOIRE**: La couche `presentation` ne doit JAMAIS importer directement les adaptateurs `datasource`.
+- **OBLIGATOIRE**: La couche `presentation` doit TOUJOURS utiliser les use-cases de `core` pour accéder aux données.
+- **OBLIGATOIRE**: Les use-cases `core` encapsulent la logique métier et injectent les ports `datasource`.
+
+## Typage strict via JSDoc (JavaScript vanilla)
+- Utiliser `// @ts-check` en tête des fichiers pertinents.
+- JSDoc systématique:
+  - `@typedef`, `@property` pour les entités (Élève, Cours, Personnage, Emotion, Impro, etc.).
+  - `@interface` pour les ports (ex: `StoragePort`, `RandomPort`), `@implements` côté adaptateurs.
+  - `@param`, `@returns` pour les fonctions publiques; `@template` si besoin.
+- Les fonctions de `core` sont pures et testables (pas de DOM/Storage).
+
+## Contraintes métier
+
+1. Sauvegarder son mood (home page)
+1.A Date et time picker fixé par défaut à aujourd'hui et l'heure actuelle (précision heure : minute)
+1.B Sélectionner le jour et l'heure puis le mood
+1.C Valider la sélection. Persistence dans le local-storage
+
+2. CRUD de son mood
+2.A Lister tous les moods par jour
+2.B Supprimer un mood
+2.C Modifier un mood
+
+3. Bilans
+3.A Avoir un récapitulatif des moods par jour
+3.B Avoir un récapitulatif des moods par semaine
+3.C Avoir un récapitulatif des moods par mois
+3.D Pouvoir copier dans le presse-papier un bilan pour l'envoyer après par mail par exemple
+
+## Organisation suggérée
+- `src/core/`: `entities/`, `ports/` (StoragePort, RandomPort), `usecases/`, `utils/`.
+- `src/datasource/`: `localstorage/` (implémentations des ports `core`).
+- `src/presentation/`: `components/`, `pages/`, `compose/` (composition root qui instancie et injecte).
+
+## Architecture des pages
+```
+src/presentation/pages/[page-name]/
+├── index.js          # Point d'entrée principal (renderPage)
+├── sections.js       # Fonctions de création des sections DOM
+├── handlers.js       # Gestionnaires d'événements (event handlers)
+├── utils.js          # Fonctions utilitaires spécifiques à la page
+└── constants.js      # Constantes et messages spécifiques à la page
+```
+
+### Rôles de chaque fichier
+
+#### `index.js` (Point d'entrée)
+- **Responsabilité** : Orchestration générale, état de l'application, composition des sections
+- **Contenu** :
+  - Fonction `render[PageName]Page({ root, params, deps })` avec **arguments nommés**
+  - Gestion de l'état local de la page (variables `let`)
+  - Initialisation des données (appels aux use-cases)
+  - Composition des sections principales
+  - Fonctions de mise à jour de l'UI (`updateUI()`, `updateXXX()`)
+  - **Appels aux fonctions exposées** par sections.js, handlers.js, utils.js avec **arguments nommés**
+  - **Injection des dépendances** (use-cases, état, callbacks) dans les fonctions appelées
+- **Imports** : sections, handlers, constants, use-cases
+- **Pattern** : État local + fonctions de mise à jour + composition + injection de dépendances
+
+#### `sections.js` (Création DOM)
+- **Responsabilité** : Création des éléments DOM et sections visuelles
+- **Contenu** :
+  - Fonctions `create[SectionName]Section({ ... })` qui retournent des `HTMLElement` avec **arguments nommés**
+  - Logique pure de création DOM (pas d'event listeners)
+  - Fonctions pures qui prennent en arguments tout ce dont elles ont besoin
+- **Pattern** : Fonctions pures qui créent et retournent des éléments DOM
+- **Imports** : AUCUN import (fonctions pures uniquement)
+
+#### `handlers.js` (Gestionnaires d'événements)
+- **Responsabilité** : Création des event listeners pour les interactions utilisateur
+- **Contenu** :
+  - Fonctions `create[ActionName]Handler({ ... })` qui retournent des **event listeners** avec **arguments nommés**
+  - Logique de gestion des événements DOM (preventDefault, extraction des données du formulaire, etc.)
+  - Appels aux use-cases pour toute logique métier
+  - Gestion des erreurs et feedback utilisateur
+  - Fonctions pures qui prennent en arguments tout ce dont elles ont besoin
+- **Pattern** : Factory functions qui retournent des **fonctions event listener**
+- **Imports** : AUCUN import (fonctions pures uniquement)
+- **Règles métier** : DÉLÉGUÉES aux use-cases (pas de validation dans handlers)
+- **Usage** : Les fonctions retournées sont injectées dans `utils.js` via `addEventListener()`
+
+#### `utils.js` (Utilitaires spécifiques)
+- **Responsabilité** : Composants réutilisables et fonctions utilitaires
+- **Contenu** :
+  - Fonctions `create[ComponentName]({ ... })` pour composants réutilisables avec **arguments nommés**
+  - Fonctions utilitaires spécifiques à la page
+  - Helpers pour feedback visuel, création DOM, etc.
+  - **Injection des event listeners** via `addEventListener()` avec les handlers de `handlers.js`
+- **Pattern** : Fonctions utilitaires pures et composants réutilisables
+- **Imports** : AUCUN import (fonctions pures uniquement)
+- **Règles métier** : AUCUNE logique métier (délégation aux use-cases)
+
+#### `constants.js` (Configuration)
+- **Responsabilité** : Constantes, messages et configuration spécifiques
+- **Contenu** :
+  - Objets de configuration (`[PAGE]_CONFIG`)
+  - Messages utilisateur (`[PAGE]_MESSAGES`)
+  - Constantes métier spécifiques à la page
+- **Pattern** : Export d'objets de configuration et messages
+
+### Règles de découpage
+
+1. **Une page = un dossier** : Chaque page complexe doit avoir son propre dossier
+2. **Séparation des responsabilités** : Chaque fichier a une responsabilité claire et unique
+3. **Imports directionnels** :
+   - `index.js` → importe sections, handlers, constants, use-cases
+   - `sections.js` → AUCUN import (fonctions pures uniquement)
+   - `handlers.js` → AUCUN import (fonctions pures uniquement)
+   - `utils.js` → AUCUN import (fonctions pures uniquement)
+   - `constants.js` → aucun import (pur)
+4. **État local dans index.js** : L'état de la page reste dans le fichier principal
+5. **Fonctions de mise à jour** : Centralisées dans `index.js` pour maintenir la cohérence
+6. **Réutilisabilité** : Les composants dans `utils.js` doivent être réutilisables
+7. **Orchestration par index.js** : `index.js` appelle les fonctions exposées par les autres fichiers en leur passant toutes leurs dépendances (use-cases, état, callbacks)
+8. **Règles métier** : TOUTES les règles/invariants métier doivent être gérées via les use-cases
+9. **Typage JSDoc** : Tous les fichiers doivent être typés avec `// @ts-check` et JSDoc complet
+10. **Arguments nommés** : TOUTES les fonctions doivent utiliser des arguments nommés (objet avec propriétés nommées)
+
+### Exemple concret du flux handlers.js → utils.js
+
+```javascript
+// handlers.js (AUCUN import)
+export function createCourseFormSubmitHandler({ coursesUseCase, onRefresh }) {
+  return async (e) => {
+    e.preventDefault();
+    const form = /** @type {HTMLFormElement} */ (e.target);
+    const input = /** @type {HTMLInputElement} */ (form.querySelector('input[name="courseName"]'));
+    const name = input.value.trim();
+    
+    if (!name) return;
+    
+    try {
+      await coursesUseCase.create(name);
+      input.value = '';
+      await onRefresh();
+    } catch (error) {
+      console.error('Erreur lors de la création du cours:', error);
+    }
+  };
+}
+
+// utils.js (AUCUN import)
+export function createCourseForm({ onSubmitHandler }) {
+  const form = document.createElement('form');
+  // ... création du DOM ...
+  form.addEventListener('submit', onSubmitHandler); // ← Handler injecté
+  return form;
+}
+
+// index.js (orchestrateur)
+const formSubmitHandler = createCourseFormSubmitHandler({ coursesUseCase: deps.coursesUseCase, onRefresh: refresh });
+const form = createCourseForm({ onSubmitHandler: formSubmitHandler });
+```
+
+## Arguments nommés (OBLIGATOIRE - TOUTES LES FONCTIONS)
+- **TOUTES** les fonctions déclarées dans le projet doivent utiliser des arguments nommés
+- **Pattern** : `function name({ param1, param2, param3 })` au lieu de `function name(param1, param2, param3)`
+- **JSDoc** : `@param {{ param1: Type1, param2: Type2, param3: Type3 }} params`
+- **Appels** : `functionName({ param1: value1, param2: value2, param3: value3 })`
+- **S'applique à** :
+  - ✅ Toutes les fonctions exportées
+  - ✅ Toutes les fonctions internes
+  - ✅ Toutes les fonctions déclarées dans les objets retournés par les use-cases
+  - ✅ Toutes les fonctions déclarées dans les objets retournés par les adapters
+  - ✅ Tous les use-cases (`core/usecases/`)
+  - ✅ Tous les adapters (`datasource/`)
+  - ✅ Tous les composants (`presentation/components/`)
+  - ✅ Toutes les pages (`presentation/pages/`)
+  - ✅ Tous les utilitaires (`core/utils/`, `presentation/pages/*/utils.js`)
+  - ✅ Tous les handlers (`presentation/pages/*/handlers.js`)
+  - ✅ Toutes les sections (`presentation/pages/*/sections.js`)
+  - ✅ Tous les fichiers de composition (`presentation/compose/`)
+  - ✅ Tous les fichiers de routage (`presentation/router.js`)
+  - ✅ Tous les fichiers principaux (`main.js`)
+- **Avantages** :
+  - Lisibilité maximale : chaque paramètre est clairement identifié
+  - Maintenance facilitée : ajout de paramètres sans casser les appels existants
+  - Sécurité renforcée : impossible de passer les arguments dans le mauvais ordre
+  - Documentation auto-générée : JSDoc avec noms des propriétés
+  - IntelliSense amélioré : meilleure autocomplétion dans l'IDE
+
+### Exemples d'arguments nommés (TOUS LES FICHIERS)
+
+```javascript
+// ❌ AVANT - Arguments positionnels
+export function createStudentCard(student, isSelected, onToggle) { ... }
+createStudentCard(student, true, handleToggle);
+
+// ✅ APRÈS - Arguments nommés
+export function createStudentCard({ student, isSelected, onToggle }) { ... }
+createStudentCard({ student, isSelected: true, onToggle: handleToggle });
+
+// ❌ AVANT - Use-case avec arguments positionnels
+export function createCharactersUseCase(deps) { ... }
+createCharactersUseCase({ charactersPort: adapter });
+
+// ✅ APRÈS - Use-case avec arguments nommés
+export function createCharactersUseCase({ deps }) { ... }
+createCharactersUseCase({ deps: { charactersPort: adapter } });
+
+// ❌ AVANT - Adapter avec arguments positionnels
+function writeAll(characters) { ... }
+writeAll([character, ...characters]);
+
+// ✅ APRÈS - Adapter avec arguments nommés
+function writeAll({ characters }) { ... }
+writeAll({ characters: [character, ...characters] });
+
+// ❌ AVANT - Fonction retournée par use-case avec arguments positionnels
+export function createCharactersUseCase({ deps }) {
+  return {
+    async create(name) { ... },
+    async rename(id, newName) { ... }
+  };
+}
+
+// ✅ APRÈS - Fonction retournée par use-case avec arguments nommés
+export function createCharactersUseCase({ deps }) {
+  return {
+    async create({ name }) { ... },
+    async rename({ id, newName }) { ... }
+  };
+}
+
+// ❌ AVANT - Fonction retournée par adapter avec arguments positionnels
+export function createCharactersAdapter() {
+  return {
+    async create(name) { ... },
+    async rename(id, newName) { ... }
+  };
+}
+
+// ✅ APRÈS - Fonction retournée par adapter avec arguments nommés
+export function createCharactersAdapter() {
+  return {
+    async create({ name }) { ... },
+    async rename({ id, newName }) { ... }
+  };
+}
+
+// ❌ AVANT - Handler avec arguments positionnels
+export function createCourseFormSubmitHandler(coursesUseCase, onRefresh) { ... }
+createCourseFormSubmitHandler(deps.coursesUseCase, refresh);
+
+// ✅ APRÈS - Handler avec arguments nommés
+export function createCourseFormSubmitHandler({ coursesUseCase, onRefresh }) { ... }
+createCourseFormSubmitHandler({ coursesUseCase: deps.coursesUseCase, onRefresh: refresh });
+
+// ❌ AVANT - Utilitaire avec arguments positionnels
+function migrateKey(oldKey, newKey) { ... }
+migrateKey(oldKey, newKey);
+
+// ✅ APRÈS - Utilitaire avec arguments nommés
+function migrateKey({ oldKey, newKey }) { ... }
+migrateKey({ oldKey, newKey });
+
+// ❌ AVANT - Composant avec arguments positionnels
+export function renderBurgerMenu(mountOn) { ... }
+renderBurgerMenu(menuMount);
+
+// ✅ APRÈS - Composant avec arguments nommés
+export function renderBurgerMenu({ mountOn }) { ... }
+renderBurgerMenu({ mountOn: menuMount });
+```
+
+## PWA & Build
+- Vite (vanilla JS) + `vite-plugin-pwa`.
+- GitHub Pages: respecter `base` dans `vite.config.js` (ex: `/moood/`).
+- Router basique
+- Pas de librairies externes hormis pour le build
+
+## Style de code
+- Noms explicites; éviter les abréviations obscures.
+- Retours précoces; éviter l'imbrication profonde; pas de `try/catch` superflu.
+- Commentaires concis pour invariants et décisions non évidentes.
+- Aucune dépendance au DOM/Storage dans `core`.
+- **Arguments nommés** : TOUTES les fonctions doivent utiliser des arguments nommés (objet avec propriétés nommées).
+- **Cohérence totale** : Aucune exception à la règle des arguments nommés dans tout le projet.
+
+## Par défaut, l'IA doit
+- Respecter les couches et l'inversion de dépendances.
+- **JAMAIS** permettre d'imports directs `datasource` dans `presentation`.
+- **TOUJOURS** utiliser les use-cases `core` comme intermédiaire entre `presentation` et `datasource`.
+- Écrire/mettre à jour les types via JSDoc.
+- Centraliser l'instanciation dans `presentation/compose`.
+- Garder `core` pur et indépendant de l'environnement.
+- **TOUJOURS** utiliser des arguments nommés pour toutes les fonctions dans tous les fichiers.
+- **JAMAIS** créer de fonctions avec des arguments positionnels, peu importe le fichier.
+- **VÉRIFIER** que chaque nouvelle fonction suit le pattern `function name({ param1, param2 })`.
+- **APPLIQUER** cette règle de manière systématique et cohérente dans tout le projet.
+- **OBLIGATOIRE** : À chaque refactorisation, supprimer systématiquement le code mort :
+  - **Fonctions mortes** : Supprimer toutes les fonctions non utilisées (imports, exports, fonctions internes)
+  - **Arguments morts** : Supprimer tous les paramètres non utilisés dans les fonctions
+  - **Variables mortes** : Supprimer toutes les variables déclarées mais non utilisées
+  - **Imports morts** : Supprimer tous les imports non utilisés
+  - **Code mort** : Identifier et supprimer tout code inaccessible ou redondant

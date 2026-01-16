@@ -1,0 +1,1 @@
+function r({note:e,datetime:t}){if(e<1||e>5)throw new Error("La note doit être comprise entre 1 et 5");return{id:`${t.getTime()}-${Math.random().toString(36).substr(2,9)}`,note:e,datetime:new Date(t.getTime())}}export{r as createMood};

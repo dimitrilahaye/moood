@@ -35,6 +35,10 @@ export function createEditFormSubmitHandler({ moodsUseCase, onRefresh }) {
         modal.style.display = 'none';
       }
       await onRefresh();
+      
+      // @ts-ignore
+      const { showSuccessMessage } = await import('./utils.js');
+      showSuccessMessage({ message: 'Modification ok' });
     } catch (error) {
       console.error('Erreur lors de la mise à jour du mood:', error);
     }
@@ -50,6 +54,10 @@ export function createDeleteHandler({ moodsUseCase, onRefresh }) {
     try {
       await moodsUseCase.delete({ id });
       await onRefresh();
+      
+      // @ts-ignore
+      const { showSuccessMessage } = await import('./utils.js');
+      showSuccessMessage({ message: 'Suppression ok' });
     } catch (error) {
       console.error('Erreur lors de la suppression du mood:', error);
     }

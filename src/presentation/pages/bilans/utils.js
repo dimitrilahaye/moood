@@ -76,26 +76,49 @@ export function renderBilanContent({ moods, moodOptions, period, date, startDate
     return;
   }
 
-  let periodLabel;
+  // Créer le conteneur du titre avec la date
+  const titleContainer = document.createElement('div');
+  titleContainer.className = 'bilan-title-container';
+
+  // Titre principal
+  let periodTypeLabel;
   if (period === 'day') {
-    const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    periodLabel = `Jour - ${dateStr}`;
-  } else if (period === 'week' && startDate && endDate) {
-    const startStr = startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const endStr = endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    periodLabel = `Semaine - du ${startStr} au ${endStr}`;
-  } else if (period === 'month' && startDate && endDate) {
-    const startStr = startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const endStr = endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    periodLabel = `Mois - du ${startStr} au ${endStr}`;
+    periodTypeLabel = 'Jour';
+  } else if (period === 'week') {
+    periodTypeLabel = 'Semaine';
   } else {
-    const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    periodLabel = period === 'week' ? `Semaine - ${dateStr}` : `Mois - ${dateStr}`;
+    periodTypeLabel = 'Mois';
   }
 
   const title = document.createElement('h2');
-  title.textContent = `Bilan ${periodLabel}`;
-  container.appendChild(title);
+  title.className = 'bilan-title';
+  title.textContent = `Bilan ${periodTypeLabel}`;
+  titleContainer.appendChild(title);
+
+  // Date en dessous (indication complémentaire)
+  let dateLabel;
+  if (period === 'day') {
+    const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    dateLabel = dateStr;
+  } else if (period === 'week' && startDate && endDate) {
+    const startStr = startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const endStr = endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    dateLabel = `du ${startStr} au ${endStr}`;
+  } else if (period === 'month' && startDate && endDate) {
+    const startStr = startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const endStr = endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    dateLabel = `du ${startStr} au ${endStr}`;
+  } else {
+    const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    dateLabel = period === 'week' ? dateStr : dateStr;
+  }
+
+  const dateElement = document.createElement('div');
+  dateElement.className = 'bilan-date';
+  dateElement.textContent = dateLabel;
+  titleContainer.appendChild(dateElement);
+
+  container.appendChild(titleContainer);
 
   const stats = document.createElement('div');
   stats.className = 'bilan-stats';

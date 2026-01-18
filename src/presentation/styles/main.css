@@ -18,14 +18,17 @@ body {
   max-width: 800px;
   margin: 0 auto;
   position: relative;
+  padding-top: 4.5rem;
 }
 
 .app-header {
   width: 100vw;
-  position: relative;
-  left: calc(-50vw + 50%);
-  margin-top: -1rem;
-  margin-bottom: 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  margin: 0;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -42,6 +45,7 @@ body {
   width: 100%;
   box-sizing: border-box;
   gap: 2rem;
+  position: relative;
 }
 
 .header-right {
@@ -906,8 +910,16 @@ h1 {
     padding-bottom: 90px;
   }
 
+  #app {
+    padding-top: 5rem;
+  }
+
   .app-header {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+  }
+
+  .app-header-content {
+    padding: 1rem;
   }
 
   .app-header-content {

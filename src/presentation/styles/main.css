@@ -168,6 +168,19 @@ h1 {
   align-items: center;
 }
 
+@media (max-width: 768px) {
+  .datetime-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .datetime-container input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
 .datetime-container label {
   display: none;
 }
@@ -951,6 +964,10 @@ h1 {
 
   .datetime-container input {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 0.9rem;
   }
 
   .mood-actions {

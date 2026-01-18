@@ -93,14 +93,8 @@ export function createMoodFormSection({ moodOptions }) {
 
   moodContainer.appendChild(moodOptionsDiv);
 
-  const submitButton = document.createElement('button');
-  submitButton.type = 'submit';
-  submitButton.className = 'submit-button';
-  submitButton.textContent = 'Enregistrer';
-
   form.appendChild(datetimeContainer);
   form.appendChild(moodContainer);
-  form.appendChild(submitButton);
   section.appendChild(form);
 
   return section;

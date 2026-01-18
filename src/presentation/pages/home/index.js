@@ -2,8 +2,8 @@
 
 import { HOME_CONFIG, HOME_MESSAGES } from './constants.js';
 import { createMoodFormSection, createNavigationSection } from './sections.js';
-import { createMoodFormSubmitHandler, createNavigationClickHandler } from './handlers.js';
-import { attachFormHandler, attachNavigationHandlers, initializeFormDefaults, showSuccessMessage } from './utils.js';
+import { createAddMoodHandler, setupMoodRadioHandlers } from './handlers.js';
+import { attachNavigationHandlers, initializeFormDefaults, showSuccessMessage } from './utils.js';
 
 /**
  * @param {{ root: HTMLElement, params: {}, deps: any }} params
@@ -18,21 +18,37 @@ export function renderHomePage({ root, params, deps }) {
 
   initializeFormDefaults();
 
-  const formSubmitHandler = createMoodFormSubmitHandler({
+  const resetForm = () => {
+    initializeFormDefaults();
+    const moodRadios = document.querySelectorAll('input[name="mood"]');
+    moodRadios.forEach(radio => {
+      /** @type {HTMLInputElement} */ (radio).checked = false;
+    });
+    // Supprimer les boutons d'action s'ils existent
+    const actionButtons = document.querySelector('.mood-action-buttons');
+    if (actionButtons && actionButtons.parentElement) {
+      actionButtons.parentElement.removeChild(actionButtons);
+    }
+  };
+
+  const addMoodHandler = createAddMoodHandler({
     moodsUseCase: deps.moodsUseCase,
     onSuccess: () => {
-      // Réinitialiser les champs date et time à la date/heure actuelle
-      initializeFormDefaults();
-      // Désélectionner le mood radio
-      const moodRadios = document.querySelectorAll('input[name="mood"]');
-      moodRadios.forEach(radio => {
-        /** @type {HTMLInputElement} */ (radio).checked = false;
-      });
+      resetForm();
       showSuccessMessage({ message: HOME_MESSAGES.success });
     }
   });
 
-  attachFormHandler({ onSubmitHandler: formSubmitHandler });
+  const cancelMoodHandler = () => {
+    // Ne rien faire de spécial, les boutons sont déjà supprimés dans setupMoodRadioHandlers
+  };
+
+  setupMoodRadioHandlers({
+    onCancel: cancelMoodHandler,
+    onAdd: async () => {
+      await addMoodHandler();
+    }
+  });
 
   attachNavigationHandlers({
     onNavigate: (path) => {

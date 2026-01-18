@@ -958,7 +958,7 @@ h1 {
   }
 
   .datetime-container {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 60% 40%;
     gap: 0.75rem;
   }
 

@@ -239,36 +239,51 @@ function createPieChart({ moods, moodOptions }) {
   const radius = 80;
   let currentAngle = -90; // Commencer en haut
 
-  data.forEach((item, index) => {
-    const angle = (item.percentage / 100) * 360;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + angle;
+  // Si un seul segment (100%), dessiner un cercle complet
+  if (data.length === 1 && data[0].percentage === 100) {
+    const item = data[0];
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', String(centerX));
+    circle.setAttribute('cy', String(centerY));
+    circle.setAttribute('r', String(radius));
+    circle.setAttribute('fill', item.color);
+    circle.setAttribute('stroke', 'white');
+    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('class', 'pie-segment');
+    circle.setAttribute('data-value', String(item.value));
+    svg.appendChild(circle);
+  } else {
+    data.forEach((item, index) => {
+      const angle = (item.percentage / 100) * 360;
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + angle;
 
-    const x1 = centerX + radius * Math.cos((startAngle * Math.PI) / 180);
-    const y1 = centerY + radius * Math.sin((startAngle * Math.PI) / 180);
-    const x2 = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
-    const y2 = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
+      const x1 = centerX + radius * Math.cos((startAngle * Math.PI) / 180);
+      const y1 = centerY + radius * Math.sin((startAngle * Math.PI) / 180);
+      const x2 = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
+      const y2 = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
 
-    const largeArcFlag = angle > 180 ? 1 : 0;
+      const largeArcFlag = angle > 180 ? 1 : 0;
 
-    const pathData = [
-      `M ${centerX} ${centerY}`,
-      `L ${x1} ${y1}`,
-      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-      'Z'
-    ].join(' ');
+      const pathData = [
+        `M ${centerX} ${centerY}`,
+        `L ${x1} ${y1}`,
+        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+        'Z'
+      ].join(' ');
 
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', pathData);
-    path.setAttribute('fill', item.color);
-    path.setAttribute('stroke', 'white');
-    path.setAttribute('stroke-width', '2');
-    path.setAttribute('class', 'pie-segment');
-    path.setAttribute('data-value', String(item.value));
-    svg.appendChild(path);
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', pathData);
+      path.setAttribute('fill', item.color);
+      path.setAttribute('stroke', 'white');
+      path.setAttribute('stroke-width', '2');
+      path.setAttribute('class', 'pie-segment');
+      path.setAttribute('data-value', String(item.value));
+      svg.appendChild(path);
 
-    currentAngle += angle;
-  });
+      currentAngle += angle;
+    });
+  }
 
   chartWrapper.appendChild(svg);
 

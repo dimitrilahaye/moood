@@ -4,6 +4,7 @@ import { BILANS_CONFIG, BILANS_MESSAGES } from './constants.js';
 import { createNavigationSection, createBilansSection } from './sections.js';
 import { createPeriodButtonHandler, createDateChangeHandler, createCopyButtonHandler, createPdfButtonHandler } from './handlers.js';
 import { renderBilanContent, attachNavigationHandlers, initializeDateInput, showCopyMessage, formatBilanText } from './utils.js';
+import { createHeader } from '../../components/header.js';
 
 /**
  * @param {{ root: HTMLElement, params: {}, deps: any }} params
@@ -12,9 +13,11 @@ import { renderBilanContent, attachNavigationHandlers, initializeDateInput, show
 export async function renderBilansPage({ root, params, deps }) {
   root.innerHTML = '';
 
+  const header = createHeader();
   const nav = createNavigationSection();
   const bilansSection = createBilansSection();
 
+  root.appendChild(header);
   root.appendChild(nav);
   root.appendChild(bilansSection);
 

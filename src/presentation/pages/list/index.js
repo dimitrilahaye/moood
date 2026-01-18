@@ -4,6 +4,7 @@ import { LIST_CONFIG, LIST_MESSAGES } from './constants.js';
 import { createNavigationSection, createMoodsListSection } from './sections.js';
 import { createEditFormSubmitHandler, createDeleteHandler, createEditHandler, createFilterButtonHandler, createListDateChangeHandler } from './handlers.js';
 import { renderMoodsList, attachNavigationHandlers, createEditModal, initializeListDateInput } from './utils.js';
+import { createHeader } from '../../components/header.js';
 
 /**
  * @param {{ root: HTMLElement, params: {}, deps: any }} params
@@ -12,10 +13,12 @@ import { renderMoodsList, attachNavigationHandlers, createEditModal, initializeL
 export async function renderListPage({ root, params, deps }) {
   root.innerHTML = '';
 
+  const header = createHeader();
   const nav = createNavigationSection();
   const listSection = createMoodsListSection();
   const editModal = createEditModal();
 
+  root.appendChild(header);
   root.appendChild(nav);
   root.appendChild(listSection);
   root.appendChild(editModal);

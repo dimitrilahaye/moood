@@ -953,23 +953,33 @@ h1 {
   }
 
   .datetime-container {
-    display: grid;
-    grid-template-columns: 60% 40%;
-    gap: 0.75rem !important;
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
     max-width: 100%;
     margin: 0 auto;
     width: 100%;
-    justify-items: stretch;
     padding: 0;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
-  .datetime-container input {
-    width: 100% !important;
+  .datetime-container input[type="date"] {
+    flex: 3 1 0;
     min-width: 0;
-    max-width: 100%;
     box-sizing: border-box;
     font-size: 0.9rem;
-    margin: 0 !important;
+    margin: 0;
+    padding: 0.5rem;
+  }
+
+  .datetime-container input[type="time"] {
+    flex: 2 1 0;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    margin: 0;
     padding: 0.5rem;
   }
 

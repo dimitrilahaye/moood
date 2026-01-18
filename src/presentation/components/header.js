@@ -1,10 +1,11 @@
 // @ts-check
 
 /**
- * Crée le header de l'application avec le logo et le lien GitHub
+ * Crée le header de l'application avec le logo, le menu et le lien GitHub
+ * @param {{ currentPage?: string }} params
  * @returns {HTMLElement}
  */
-export function createHeader() {
+export function createHeader({ currentPage = 'home' }) {
   const header = document.createElement('header');
   header.className = 'app-header';
 
@@ -20,6 +21,33 @@ export function createHeader() {
 
   logoContainer.appendChild(logo);
   headerContent.appendChild(logoContainer);
+
+  // Navigation intégrée dans le header (visible sur tablette+)
+  const headerNav = document.createElement('nav');
+  headerNav.className = 'header-navigation';
+
+  const homeLink = document.createElement('a');
+  homeLink.href = '#';
+  homeLink.textContent = 'Accueil';
+  homeLink.className = `header-nav-link ${currentPage === 'home' ? 'active' : ''}`;
+
+  const listLink = document.createElement('a');
+  listLink.href = '#';
+  listLink.textContent = 'Mes Moods';
+  listLink.className = `header-nav-link ${currentPage === 'list' ? 'active' : ''}`;
+
+  const bilansLink = document.createElement('a');
+  bilansLink.href = '#';
+  bilansLink.textContent = 'Bilans';
+  bilansLink.className = `header-nav-link ${currentPage === 'bilans' ? 'active' : ''}`;
+
+  headerNav.appendChild(homeLink);
+  headerNav.appendChild(listLink);
+  headerNav.appendChild(bilansLink);
+  headerContent.appendChild(headerNav);
+
+  const rightSection = document.createElement('div');
+  rightSection.className = 'header-right';
 
   const githubLink = document.createElement('a');
   githubLink.href = 'https://github.com/dimitrilahaye/moood';
@@ -43,7 +71,8 @@ export function createHeader() {
 
   githubIcon.appendChild(path);
   githubLink.appendChild(githubIcon);
-  headerContent.appendChild(githubLink);
+  rightSection.appendChild(githubLink);
+  headerContent.appendChild(rightSection);
 
   header.appendChild(headerContent);
 

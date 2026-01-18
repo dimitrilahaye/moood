@@ -13,7 +13,7 @@ import { createHeader } from '../../components/header.js';
 export async function renderBilansPage({ root, params, deps }) {
   root.innerHTML = '';
 
-  const header = createHeader();
+  const header = createHeader({ currentPage: 'bilans' });
   const nav = createNavigationSection();
   const bilansSection = createBilansSection();
 
@@ -163,5 +163,21 @@ export async function renderBilansPage({ root, params, deps }) {
         router.navigate(path);
       }
     }
+  });
+
+  // Gérer la navigation dans le header (tablette+)
+  const headerNavLinks = header.querySelectorAll('.header-nav-link');
+  headerNavLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const linkElement = /** @type {HTMLAnchorElement} */ (e.target);
+      const path = linkElement.textContent === 'Accueil' ? '/' :
+                   linkElement.textContent === 'Mes Moods' ? '/list' :
+                   linkElement.textContent === 'Bilans' ? '/bilans' : '/';
+      const router = /** @type {any} */ (window).router;
+      if (router) {
+        router.navigate(path);
+      }
+    });
   });
 }

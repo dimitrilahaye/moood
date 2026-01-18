@@ -11,7 +11,7 @@ import { createHeader } from '../../components/header.js';
  * @returns {void}
  */
 export function renderHomePage({ root, params, deps }) {
-  const header = createHeader();
+  const header = createHeader({ currentPage: 'home' });
   const nav = createNavigationSection();
   const formSection = createMoodFormSection({ moodOptions: HOME_CONFIG.moodOptions });
 
@@ -60,5 +60,21 @@ export function renderHomePage({ root, params, deps }) {
         router.navigate(path);
       }
     }
+  });
+
+  // Gérer la navigation dans le header (tablette+)
+  const headerNavLinks = header.querySelectorAll('.header-nav-link');
+  headerNavLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const linkElement = /** @type {HTMLAnchorElement} */ (e.target);
+      const path = linkElement.textContent === 'Accueil' ? '/' :
+                   linkElement.textContent === 'Mes Moods' ? '/list' :
+                   linkElement.textContent === 'Bilans' ? '/bilans' : '/';
+      const router = /** @type {any} */ (window).router;
+      if (router) {
+        router.navigate(path);
+      }
+    });
   });
 }

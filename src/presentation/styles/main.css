@@ -994,6 +994,63 @@ h1 {
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
+/* Bouton retour en haut */
+.back-to-top-button {
+  position: fixed;
+  bottom: 6rem;
+  right: 1.5rem;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(128, 90, 213, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.back-to-top-button[style*="display: flex"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.back-to-top-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(128, 90, 213, 0.5);
+}
+
+.back-to-top-button:active {
+  transform: translateY(-2px);
+}
+
+.back-to-top-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 768px) {
+  .back-to-top-button {
+    bottom: 5.5rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+  }
+
+  .back-to-top-button svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 @media print {
   * {
     box-sizing: border-box;

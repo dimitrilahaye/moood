@@ -264,6 +264,79 @@ export function initializeDateInput() {
 }
 
 /**
+ * Crée et gère le bouton "retour en haut"
+ * @returns {void}
+ */
+export function createBackToTopButton() {
+  // Vérifier si le bouton existe déjà
+  let backToTopButton = document.getElementById('back-to-top-button');
+  
+  if (!backToTopButton) {
+    backToTopButton = document.createElement('button');
+    backToTopButton.id = 'back-to-top-button';
+    backToTopButton.className = 'back-to-top-button';
+    backToTopButton.setAttribute('aria-label', 'Retour en haut');
+    backToTopButton.style.display = 'none';
+
+    // Icône SVG flèche vers le haut
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('width', '24');
+    icon.setAttribute('height', '24');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.setAttribute('stroke-width', '2');
+    icon.setAttribute('stroke-linecap', 'round');
+    icon.setAttribute('stroke-linejoin', 'round');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M18 15l-6-6-6 6');
+
+    icon.appendChild(path);
+    backToTopButton.appendChild(icon);
+
+    // Handler pour remonter en haut
+    backToTopButton.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.body.appendChild(backToTopButton);
+
+    // Gérer l'affichage selon le scroll
+    const handleScroll = () => {
+      const button = document.getElementById('back-to-top-button');
+      if (button) {
+        if (window.scrollY > 300) {
+          button.style.display = 'flex';
+          button.style.opacity = '1';
+          button.style.transform = 'translateY(0)';
+        } else {
+          button.style.display = 'none';
+          button.style.opacity = '0';
+          button.style.transform = 'translateY(20px)';
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // Initialiser l'état
+    handleScroll();
+  }
+}
+
+/**
+ * Supprime le bouton "retour en haut"
+ * @returns {void}
+ */
+export function removeBackToTopButton() {
+  const backToTopButton = document.getElementById('back-to-top-button');
+  if (backToTopButton) {
+    backToTopButton.remove();
+  }
+}
+
+/**
  * Crée un graphique en camembert SVG
  * @param {{ moods: Mood[], moodOptions: Array<{ value: number, label: string, emotion: string, emoji: string, color: string }> }} params
  * @returns {HTMLElement}

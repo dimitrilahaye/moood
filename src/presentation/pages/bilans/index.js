@@ -3,7 +3,7 @@
 import { BILANS_CONFIG, BILANS_MESSAGES } from './constants.js';
 import { createNavigationSection, createBilansSection } from './sections.js';
 import { createPeriodButtonHandler, createDateChangeHandler, createCopyButtonHandler, createPdfButtonHandler } from './handlers.js';
-import { renderBilanContent, attachNavigationHandlers, initializeDateInput, showCopyMessage, formatBilanText } from './utils.js';
+import { renderBilanContent, attachNavigationHandlers, initializeDateInput, showCopyMessage, formatBilanText, createBackToTopButton, removeBackToTopButton } from './utils.js';
 import { createHeader } from '../../components/header.js';
 
 /**
@@ -12,6 +12,9 @@ import { createHeader } from '../../components/header.js';
  */
 export async function renderBilansPage({ root, params, deps }) {
   root.innerHTML = '';
+
+  // Supprimer le bouton back to top précédent si il existe
+  removeBackToTopButton();
 
   const header = createHeader({ currentPage: 'bilans' });
   const nav = createNavigationSection();
@@ -22,6 +25,9 @@ export async function renderBilansPage({ root, params, deps }) {
   root.appendChild(bilansSection);
 
   initializeDateInput();
+  
+  // Créer le bouton retour en haut
+  createBackToTopButton();
 
   let currentPeriod = 'day';
   let currentDate = new Date();

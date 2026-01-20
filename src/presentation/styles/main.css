@@ -1053,6 +1053,30 @@ h1 {
     box-sizing: border-box;
   }
 
+  /* Désactiver toutes les animations et transitions */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  /* Forcer l'opacité à 1 pour tous les éléments animés */
+  .stat-card,
+  .dashboard-chart-section,
+  .progression-chart-container,
+  .pie-chart-fancy,
+  .pie-segment,
+  .progression-point,
+  .progression-line {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   body {
     background: white;
     padding: 0;
@@ -1399,5 +1423,26 @@ h1 {
 @media print {
   .app-header {
     display: none;
+  }
+}
+
+/* Pour les utilisateurs qui préfèrent moins d'animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .stat-card,
+  .dashboard-chart-section,
+  .progression-chart-container,
+  .pie-chart-fancy,
+  .pie-segment,
+  .progression-point,
+  .progression-line {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

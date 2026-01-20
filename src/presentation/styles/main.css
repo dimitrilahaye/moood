@@ -586,13 +586,69 @@ h1 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Barre d'outils Bilans */
+.bilans-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 5rem;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
 .period-selector {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  justify-content: center;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(128, 90, 213, 0.3);
+}
+
+.toolbar-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(128, 90, 213, 0.4);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.toolbar-button svg {
+  width: 20px;
+  height: 20px;
 }
 
 .period-button {
@@ -672,6 +728,97 @@ h1 {
   color: #2d3748;
 }
 
+/* Dashboard Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.stat-card:nth-child(1) {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.stat-card:nth-child(2) {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #805ad5;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.dashboard-chart-section {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .bilan-stats {
   display: flex;
   gap: 2rem;
@@ -719,61 +866,73 @@ h1 {
   flex-wrap: wrap;
 }
 
-.copy-button,
-.pdf-button {
-  flex: 1;
-  min-width: 200px;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(128, 90, 213, 0.3);
-}
 
-.copy-button:hover,
-.pdf-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(128, 90, 213, 0.4);
-}
+/* Les styles .copy-button et .pdf-button sont maintenant remplacés par .toolbar-button */
 
 
 .pie-chart-container {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
 }
 
 .chart-title {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
   color: #2d3748;
-  font-weight: 600;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.5px;
 }
 
 .pie-chart-wrapper {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
+  gap: 3rem;
   flex-wrap: wrap;
+  min-height: 350px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.pie-chart {
+.pie-chart-fancy {
   flex-shrink: 0;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.15));
+  transition: transform 0.3s ease;
+}
+
+.pie-chart-fancy:hover {
+  transform: scale(1.02);
 }
 
 .pie-segment {
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
   cursor: pointer;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
 .pie-segment:hover {
-  opacity: 0.8;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transform: scale(1.05);
+  transform-origin: center;
+}
+
+.fancy-segment {
+  animation: segmentAppear 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes segmentAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .pie-chart-legend {
@@ -790,14 +949,6 @@ h1 {
   gap: 0.75rem;
 }
 
-.legend-color {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
 
 .legend-text {
   color: #4a5568;
@@ -806,14 +957,21 @@ h1 {
 
 .progression-chart-container {
   margin: 2rem 0;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
 }
 
 .progression-chart-wrapper {
   overflow-x: auto;
   width: 100%;
+  padding: 1rem 0;
 }
 
 .progression-chart {
@@ -822,14 +980,25 @@ h1 {
 }
 
 .progression-line {
-  transition: stroke-width 0.3s ease;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
-.progression-line:hover {
-  stroke-width: 4;
+.progression-point {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.progression-point:hover {
+  transform: scale(1.5);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 @media print {
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     background: white;
     padding: 0;
@@ -837,10 +1006,24 @@ h1 {
   }
 
   .main-navigation,
-  .period-selector,
+  .bilans-section h1,
+  .bilans-toolbar,
   .date-selector,
   .bilan-actions {
     display: none !important;
+  }
+
+  /* Le titre du PDF est le titre dynamique du bilan (Bilan Jour/Semaine/Mois) */
+  .bilan-title {
+    font-size: 2rem !important;
+    margin-bottom: 0.5rem !important;
+    page-break-after: avoid;
+  }
+
+  .bilan-date {
+    font-size: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    page-break-after: avoid;
   }
 
   .bilans-section {
@@ -857,12 +1040,75 @@ h1 {
     page-break-inside: avoid;
   }
 
+  .dashboard-chart-section {
+    background: white;
+    box-shadow: none;
+    padding: 1rem;
+    margin: 0;
+    page-break-inside: avoid;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
   .pie-chart-wrapper {
     flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+  }
+
+  .pie-chart-fancy {
+    flex-shrink: 0;
+    width: 250px;
+    height: 250px;
   }
 
   .pie-chart-legend {
-    min-width: 250px;
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+  }
+
+  .stats-cards {
+    page-break-inside: avoid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-auto-flow: row !important;
+    gap: 1.5rem !important;
+    display: grid !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .stat-card {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    grid-column: auto !important;
+  }
+
+  .stat-card.stat-card-total {
+    grid-column: 1 !important;
+  }
+
+  .stat-card.stat-card-avg {
+    grid-column: 2 !important;
+  }
+
+  .dashboard-grid {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
   .progression-chart {
@@ -929,6 +1175,59 @@ h1 {
 
   .header-navigation {
     display: none;
+  }
+
+  /* Dashboard responsive mobile */
+  .dashboard-grid {
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .dashboard-chart-section {
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+    margin: 0 -0.5rem;
+    width: calc(100% + 1rem);
+    box-sizing: border-box;
+  }
+
+  .pie-chart-wrapper {
+    gap: 1.5rem;
+    min-height: 280px;
+    padding: 0;
+  }
+
+  .pie-chart-fancy {
+    width: 250px;
+    height: 250px;
+  }
+
+  .pie-chart-legend {
+    min-width: 100%;
+    max-width: 100%;
   }
 
   .app-logo {
@@ -999,10 +1298,24 @@ h1 {
     flex-direction: column;
   }
 
+  .bilans-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem;
+    top: 4rem;
+  }
+
   .period-selector {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    flex: none;
+  }
+
+  .toolbar-actions {
+    justify-content: center;
+    width: 100%;
   }
 
   .period-button {

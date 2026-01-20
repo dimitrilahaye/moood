@@ -112,6 +112,28 @@ export function renderBilanContent({ moods, moodOptions, period, date, startDate
 
   container.appendChild(titleContainer);
 
+  // Désactiver les boutons de la toolbar s'il n'y a pas de données
+  const copyButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('copy-button'));
+  const pdfButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('pdf-button'));
+  
+  if (copyButton && pdfButton) {
+    if (moods.length === 0) {
+      copyButton.disabled = true;
+      pdfButton.disabled = true;
+      copyButton.style.opacity = '0.5';
+      pdfButton.style.opacity = '0.5';
+      copyButton.style.cursor = 'not-allowed';
+      pdfButton.style.cursor = 'not-allowed';
+    } else {
+      copyButton.disabled = false;
+      pdfButton.disabled = false;
+      copyButton.style.opacity = '1';
+      pdfButton.style.opacity = '1';
+      copyButton.style.cursor = 'pointer';
+      pdfButton.style.cursor = 'pointer';
+    }
+  }
+
   if (moods.length === 0) {
     const emptyMessage = document.createElement('p');
     emptyMessage.className = 'empty-message';
@@ -120,26 +142,59 @@ export function renderBilanContent({ moods, moodOptions, period, date, startDate
     return;
   }
 
-  const stats = document.createElement('div');
-  stats.className = 'bilan-stats';
+  // Dashboard cards layout
+  const dashboardGrid = document.createElement('div');
+  dashboardGrid.className = 'dashboard-grid';
 
-  const total = document.createElement('div');
-  total.className = 'stat-item';
-  total.innerHTML = `<strong>Total :</strong> ${moods.length} mood${moods.length > 1 ? 's' : ''}`;
+  // Stats cards
+  const statsContainer = document.createElement('div');
+  statsContainer.className = 'stats-cards';
+
+  const totalCard = document.createElement('div');
+  totalCard.className = 'stat-card stat-card-total';
+  const totalIcon = document.createElement('div');
+  totalIcon.className = 'stat-icon';
+  totalIcon.textContent = '❤️';
+  const totalValue = document.createElement('div');
+  totalValue.className = 'stat-value';
+  totalValue.textContent = String(moods.length);
+  const totalLabel = document.createElement('div');
+  totalLabel.className = 'stat-label';
+  totalLabel.textContent = `mood${moods.length > 1 ? 's' : ''}`;
+  totalCard.appendChild(totalIcon);
+  totalCard.appendChild(totalValue);
+  totalCard.appendChild(totalLabel);
 
   const avg = moods.reduce((sum, m) => sum + m.note, 0) / moods.length;
-  const average = document.createElement('div');
-  average.className = 'stat-item';
-  average.innerHTML = `<strong>Moyenne :</strong> ${avg.toFixed(2)}/5`;
+  const avgCard = document.createElement('div');
+  avgCard.className = 'stat-card stat-card-avg';
+  const avgIcon = document.createElement('div');
+  avgIcon.className = 'stat-icon';
+  avgIcon.textContent = '⭐';
+  const avgValue = document.createElement('div');
+  avgValue.className = 'stat-value';
+  avgValue.textContent = avg.toFixed(2);
+  const avgLabel = document.createElement('div');
+  avgLabel.className = 'stat-label';
+  avgLabel.textContent = '/ 5 moyenne';
+  avgCard.appendChild(avgIcon);
+  avgCard.appendChild(avgValue);
+  avgCard.appendChild(avgLabel);
 
-  stats.appendChild(total);
-  stats.appendChild(average);
-  container.appendChild(stats);
+  statsContainer.appendChild(totalCard);
+  statsContainer.appendChild(avgCard);
+  dashboardGrid.appendChild(statsContainer);
 
+  // Main chart section
+  const chartSection = document.createElement('div');
+  chartSection.className = 'dashboard-chart-section';
   const chartContainer = createPieChart({ moods, moodOptions });
-  container.appendChild(chartContainer);
+  chartSection.appendChild(chartContainer);
+  dashboardGrid.appendChild(chartSection);
 
-  const progressionChart = createProgressionChart({ moods, period, date, startDate, endDate });
+  container.appendChild(dashboardGrid);
+
+  const progressionChart = createProgressionChart({ moods, period, date, startDate, endDate, moodOptions });
   container.appendChild(progressionChart);
 
   const list = document.createElement('div');
@@ -252,15 +307,65 @@ function createPieChart({ moods, moodOptions }) {
   chartWrapper.className = 'pie-chart-wrapper';
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 200 200');
-  svg.setAttribute('width', '200');
-  svg.setAttribute('height', '200');
-  svg.setAttribute('class', 'pie-chart');
+  svg.setAttribute('viewBox', '0 0 300 300');
+  svg.setAttribute('width', '300');
+  svg.setAttribute('height', '300');
+  svg.setAttribute('class', 'pie-chart-fancy');
 
-  const centerX = 100;
-  const centerY = 100;
-  const radius = 80;
+  const centerX = 150;
+  const centerY = 150;
+  const radius = 120;
   let currentAngle = -90; // Commencer en haut
+
+  // Fonction helper pour éclaircir une couleur
+  function lightenColor(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.min(255, (num >> 16) + amt);
+    const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+    const B = Math.min(255, (num & 0x0000FF) + amt);
+    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+  }
+
+  // Fonction helper pour assombrir une couleur
+  function darkenColor(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, (num >> 16) - amt);
+    const G = Math.max(0, ((num >> 8) & 0x00FF) - amt);
+    const B = Math.max(0, (num & 0x0000FF) - amt);
+    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+  }
+
+  // Créer les définitions de gradients pour chaque couleur
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  data.forEach((item, index) => {
+    const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    gradient.setAttribute('id', `gradient-${item.value}`);
+    gradient.setAttribute('x1', '0%');
+    gradient.setAttribute('y1', '0%');
+    gradient.setAttribute('x2', '100%');
+    gradient.setAttribute('y2', '100%');
+    
+    // Créer des variantes plus vives pour les gradients
+    const lighterColor = lightenColor(item.color, 15);
+    const darkerColor = darkenColor(item.color, 10);
+    
+    const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop1.setAttribute('offset', '0%');
+    stop1.setAttribute('stop-color', lighterColor);
+    stop1.setAttribute('stop-opacity', '1');
+    
+    const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop2.setAttribute('offset', '100%');
+    stop2.setAttribute('stop-color', darkerColor);
+    stop2.setAttribute('stop-opacity', '1');
+    
+    gradient.appendChild(stop1);
+    gradient.appendChild(stop2);
+    defs.appendChild(gradient);
+  });
+  svg.appendChild(defs);
 
   // Si un seul segment (100%), dessiner un cercle complet
   if (data.length === 1 && data[0].percentage === 100) {
@@ -269,10 +374,10 @@ function createPieChart({ moods, moodOptions }) {
     circle.setAttribute('cx', String(centerX));
     circle.setAttribute('cy', String(centerY));
     circle.setAttribute('r', String(radius));
-    circle.setAttribute('fill', item.color);
+    circle.setAttribute('fill', `url(#gradient-${item.value})`);
     circle.setAttribute('stroke', 'white');
-    circle.setAttribute('stroke-width', '2');
-    circle.setAttribute('class', 'pie-segment');
+    circle.setAttribute('stroke-width', '4');
+    circle.setAttribute('class', 'pie-segment fancy-segment');
     circle.setAttribute('data-value', String(item.value));
     svg.appendChild(circle);
   } else {
@@ -297,16 +402,22 @@ function createPieChart({ moods, moodOptions }) {
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', pathData);
-      path.setAttribute('fill', item.color);
+      path.setAttribute('fill', `url(#gradient-${item.value})`);
       path.setAttribute('stroke', 'white');
-      path.setAttribute('stroke-width', '2');
-      path.setAttribute('class', 'pie-segment');
+      path.setAttribute('stroke-width', '4');
+      path.setAttribute('class', 'pie-segment fancy-segment');
       path.setAttribute('data-value', String(item.value));
+      path.style.opacity = '0';
+      path.style.transition = 'opacity 0.5s ease';
+      setTimeout(() => {
+        path.style.opacity = '1';
+      }, index * 100);
       svg.appendChild(path);
 
       currentAngle += angle;
     });
   }
+
 
   chartWrapper.appendChild(svg);
 
@@ -318,15 +429,10 @@ function createPieChart({ moods, moodOptions }) {
     const legendItem = document.createElement('div');
     legendItem.className = 'legend-item';
 
-    const colorBox = document.createElement('div');
-    colorBox.className = 'legend-color';
-    colorBox.style.backgroundColor = item.color;
-
     const legendText = document.createElement('div');
     legendText.className = 'legend-text';
     legendText.innerHTML = `${item.emoji} <strong>${item.label}</strong> (${item.count}) - ${item.percentage.toFixed(1)}%`;
 
-    legendItem.appendChild(colorBox);
     legendItem.appendChild(legendText);
     legend.appendChild(legendItem);
   });
@@ -339,10 +445,10 @@ function createPieChart({ moods, moodOptions }) {
 
 /**
  * Crée un graphique de progression des émotions dans le temps
- * @param {{ moods: Mood[], period: string, date: Date, startDate?: Date, endDate?: Date }} params
+ * @param {{ moods: Mood[], period: string, date: Date, startDate?: Date, endDate?: Date, moodOptions: Array<{ value: number, label: string, emotion: string, emoji: string, color: string }> }} params
  * @returns {HTMLElement}
  */
-function createProgressionChart({ moods, period, date, startDate, endDate }) {
+function createProgressionChart({ moods, period, date, startDate, endDate, moodOptions }) {
   const container = document.createElement('div');
   container.className = 'progression-chart-container';
 
@@ -498,7 +604,32 @@ function createProgressionChart({ moods, period, date, startDate, endDate }) {
   const xStep = xLabels.length > 1 ? chartWidth / (xLabels.length - 1) : 0;
   const yScale = chartHeight / (yMax - yMin);
 
-  // Ligne de progression
+  // Créer un gradient pour la ligne basé sur les valeurs
+  const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+  gradient.setAttribute('id', 'progression-gradient');
+  gradient.setAttribute('x1', '0%');
+  gradient.setAttribute('y1', '0%');
+  gradient.setAttribute('x2', '100%');
+  gradient.setAttribute('y2', '0%');
+
+  dataPoints.forEach((value, index) => {
+    if (value === null) return;
+    const moodOption = moodOptions.find(opt => {
+      const rounded = Math.round(value);
+      return opt.value === rounded;
+    });
+    const color = moodOption ? moodOption.color : '#718096';
+    const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop.setAttribute('offset', `${(index / Math.max(1, dataPoints.length - 1)) * 100}%`);
+    stop.setAttribute('stop-color', color);
+    gradient.appendChild(stop);
+  });
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.appendChild(gradient);
+  svg.appendChild(defs);
+
+  // Ligne de progression avec gradient
   const pathPoints = dataPoints
     .map((value, index) => {
       if (value === null) return null;
@@ -509,33 +640,98 @@ function createProgressionChart({ moods, period, date, startDate, endDate }) {
     .filter(p => p !== null);
 
   if (pathPoints.length > 0) {
-    const pathCommands = pathPoints.map((point, index) => {
-      return index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`;
-    });
-    const pathData = pathCommands.join(' ');
+    // Créer des courbes harmonieuses avec des courbes de Bézier cubiques
+    let pathData = '';
+    
+    if (pathPoints.length === 1) {
+      // Un seul point : juste un move
+      pathData = `M ${pathPoints[0].x} ${pathPoints[0].y}`;
+    } else if (pathPoints.length === 2) {
+      // Deux points : ligne droite
+      pathData = `M ${pathPoints[0].x} ${pathPoints[0].y} L ${pathPoints[1].x} ${pathPoints[1].y}`;
+    } else {
+      // Plusieurs points : courbes de Bézier cubiques
+      pathData = `M ${pathPoints[0].x} ${pathPoints[0].y}`;
+      
+      for (let i = 0; i < pathPoints.length - 1; i++) {
+        const p0 = pathPoints[i];
+        const p1 = pathPoints[i + 1];
+        
+        // Calculer les points de contrôle pour une courbe harmonieuse
+        const dx = p1.x - p0.x;
+        const dy = p1.y - p0.y;
+        
+        // Utiliser le point précédent et suivant pour créer des courbes naturelles
+        let cp1x, cp1y, cp2x, cp2y;
+        
+        if (i === 0) {
+          // Premier segment : point de contrôle basé uniquement sur le suivant
+          const p2 = pathPoints[i + 2] || p1;
+          const dx2 = p2.x - p0.x;
+          const dy2 = p2.y - p0.y;
+          cp1x = p0.x + dx * 0.5;
+          cp1y = p0.y + dy * 0.5;
+          cp2x = p1.x - dx2 * 0.3;
+          cp2y = p1.y - dy2 * 0.3;
+        } else if (i === pathPoints.length - 2) {
+          // Dernier segment : point de contrôle basé sur le précédent
+          const pPrev = pathPoints[i - 1];
+          const dxPrev = p0.x - pPrev.x;
+          const dyPrev = p0.y - pPrev.y;
+          cp1x = p0.x + dxPrev * 0.3;
+          cp1y = p0.y + dyPrev * 0.3;
+          cp2x = p1.x - dx * 0.5;
+          cp2y = p1.y - dy * 0.5;
+        } else {
+          // Segment du milieu : courbe harmonieuse entre les points adjacents
+          const pPrev = pathPoints[i - 1];
+          const pNext = pathPoints[i + 2];
+          const dxPrev = p0.x - pPrev.x;
+          const dyPrev = p0.y - pPrev.y;
+          const dxNext = pNext.x - p1.x;
+          const dyNext = pNext.y - p1.y;
+          
+          cp1x = p0.x + dxPrev * 0.3;
+          cp1y = p0.y + dyPrev * 0.3;
+          cp2x = p1.x - dxNext * 0.3;
+          cp2y = p1.y - dyNext * 0.3;
+        }
+        
+        pathData += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
+      }
+    }
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', pathData);
     path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', '#805ad5');
-    path.setAttribute('stroke-width', '3');
+    path.setAttribute('stroke', 'url(#progression-gradient)');
+    path.setAttribute('stroke-width', '4');
     path.setAttribute('class', 'progression-line');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
     svg.appendChild(path);
   }
 
-  // Points
+  // Points avec couleurs correspondant aux moods
   dataPoints.forEach((value, index) => {
     if (value === null) return;
     const x = padding.left + index * xStep;
     const y = padding.top + chartHeight - (value - yMin) * yScale;
     
+    const moodOption = moodOptions.find(opt => {
+      const rounded = Math.round(value);
+      return opt.value === rounded;
+    });
+    const color = moodOption ? moodOption.color : '#718096';
+    
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', String(x));
     circle.setAttribute('cy', String(y));
-    circle.setAttribute('r', '4');
-    circle.setAttribute('fill', '#805ad5');
+    circle.setAttribute('r', '6');
+    circle.setAttribute('fill', color);
     circle.setAttribute('stroke', 'white');
-    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('stroke-width', '3');
+    circle.setAttribute('class', 'progression-point');
     svg.appendChild(circle);
   });
 

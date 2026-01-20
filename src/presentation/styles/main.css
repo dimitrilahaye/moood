@@ -1063,7 +1063,8 @@ h1 {
   .bilans-section h1,
   .bilans-toolbar,
   .date-selector,
-  .bilan-actions {
+  .bilan-actions,
+  .back-to-top-button {
     display: none !important;
   }
 

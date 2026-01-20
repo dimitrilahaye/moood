@@ -1242,25 +1242,30 @@ h1 {
   }
 
   .stats-cards {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
     padding: 0;
     margin-bottom: 1.5rem;
   }
 
   .stat-card {
-    padding: 1.25rem;
+    padding: 1rem 0.75rem;
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
   }
 
   .stat-icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
   }
 
   .stat-value {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
   }
 
   .dashboard-chart-section {
@@ -1360,7 +1365,8 @@ h1 {
     align-items: stretch;
     gap: 1rem;
     padding: 1rem;
-    top: 4rem;
+    top: 5.5rem;
+    margin-top: 0.5rem;
   }
 
   .period-selector {

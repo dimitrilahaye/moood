@@ -156,16 +156,11 @@ export function createBilansSection() {
   const dateSelector = document.createElement('div');
   dateSelector.className = 'date-selector';
 
-  const dateLabel = document.createElement('label');
-  dateLabel.textContent = 'Date';
-  dateLabel.htmlFor = 'bilan-date';
-
   const dateInput = document.createElement('input');
   dateInput.type = 'date';
   dateInput.id = 'bilan-date';
   dateInput.name = 'date';
 
-  dateSelector.appendChild(dateLabel);
   dateSelector.appendChild(dateInput);
 
   const bilanContent = document.createElement('div');

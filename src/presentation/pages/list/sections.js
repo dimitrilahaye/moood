@@ -76,18 +76,12 @@ export function createMoodsListSection() {
   dateSelector.className = 'date-selector';
   dateSelector.id = 'list-date-selector';
   dateSelector.style.display = 'none';
-  dateSelector.style.alignItems = 'center';
-
-  const dateLabel = document.createElement('label');
-  dateLabel.textContent = 'Date';
-  dateLabel.htmlFor = 'list-date';
 
   const dateInput = document.createElement('input');
   dateInput.type = 'date';
   dateInput.id = 'list-date';
   dateInput.name = 'date';
 
-  dateSelector.appendChild(dateLabel);
   dateSelector.appendChild(dateInput);
 
   filterContainer.appendChild(filterSelector);

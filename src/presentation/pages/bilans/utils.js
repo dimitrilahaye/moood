@@ -68,15 +68,7 @@ export function renderBilanContent({ moods, moodOptions, period, date, startDate
 
   container.innerHTML = '';
 
-  if (moods.length === 0) {
-    const emptyMessage = document.createElement('p');
-    emptyMessage.className = 'empty-message';
-    emptyMessage.textContent = 'Aucune donnée disponible pour cette période';
-    container.appendChild(emptyMessage);
-    return;
-  }
-
-  // Créer le conteneur du titre avec la date
+  // Créer le conteneur du titre avec la date (AVANT le check moods.length === 0)
   const titleContainer = document.createElement('div');
   titleContainer.className = 'bilan-title-container';
 
@@ -119,6 +111,14 @@ export function renderBilanContent({ moods, moodOptions, period, date, startDate
   titleContainer.appendChild(dateElement);
 
   container.appendChild(titleContainer);
+
+  if (moods.length === 0) {
+    const emptyMessage = document.createElement('p');
+    emptyMessage.className = 'empty-message';
+    emptyMessage.textContent = 'Aucune donnée disponible pour cette période';
+    container.appendChild(emptyMessage);
+    return;
+  }
 
   const stats = document.createElement('div');
   stats.className = 'bilan-stats';

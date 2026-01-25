@@ -118,8 +118,9 @@ export function attachNavigationHandlers({ onNavigate }) {
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      const linkElement = /** @type {HTMLAnchorElement} */ (e.target);
-      const path = linkElement.textContent === 'Accueil' ? '/' : 
+      const linkElement = /** @type {HTMLAnchorElement} */ (e.target.closest('.nav-link') || e.target);
+      const isCta = linkElement.classList.contains('nav-link-cta');
+      const path = isCta ? '/' : 
                    linkElement.textContent === 'Mes Moods' ? '/list' : 
                    linkElement.textContent === 'Bilans' ? '/bilans' : '/';
       onNavigate(path);

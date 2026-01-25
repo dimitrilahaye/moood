@@ -107,23 +107,26 @@ export function createNavigationSection() {
   const nav = document.createElement('nav');
   nav.className = 'main-navigation';
 
-  const homeLink = document.createElement('a');
-  homeLink.href = '#';
-  homeLink.textContent = 'Accueil';
-  homeLink.className = 'nav-link active';
-
   const listLink = document.createElement('a');
   listLink.href = '#';
   listLink.textContent = 'Mes Moods';
   listLink.className = 'nav-link';
+
+  const homeLink = document.createElement('a');
+  homeLink.href = '#';
+  homeLink.className = 'nav-link nav-link-cta active';
+  const plusIcon = document.createElement('span');
+  plusIcon.textContent = '+';
+  plusIcon.className = 'nav-cta-icon';
+  homeLink.appendChild(plusIcon);
 
   const bilansLink = document.createElement('a');
   bilansLink.href = '#';
   bilansLink.textContent = 'Bilans';
   bilansLink.className = 'nav-link';
 
-  nav.appendChild(homeLink);
   nav.appendChild(listLink);
+  nav.appendChild(homeLink);
   nav.appendChild(bilansLink);
 
   return nav;

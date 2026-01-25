@@ -1232,7 +1232,7 @@ h1 {
 
 @media (max-width: 768px) {
   body {
-    padding-bottom: 90px;
+    padding-bottom: 50px;
   }
 
   #app {
@@ -1339,16 +1339,51 @@ h1 {
     backdrop-filter: blur(20px);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    padding: 0.75rem 0.5rem;
+    padding: 0.25rem 0.5rem;
     justify-content: space-around;
+    min-height: 45px;
+    align-items: center;
   }
 
   .nav-link {
     flex: 1;
     text-align: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.5rem;
     font-size: 0.9rem;
     border-radius: 8px;
+    line-height: 1.2;
+  }
+
+  .nav-link-cta {
+    flex: 0 0 auto;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0 0.5rem;
+    box-shadow: 0 4px 12px rgba(128, 90, 213, 0.4);
+  }
+
+  .nav-link-cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(128, 90, 213, 0.5);
+    background: linear-gradient(135deg, #9f7aea 0%, #b794f4 100%);
+  }
+
+  .nav-link-cta.active {
+    background: linear-gradient(135deg, #9f7aea 0%, #b794f4 100%);
+    box-shadow: 0 6px 16px rgba(128, 90, 213, 0.6);
+  }
+
+  .nav-cta-icon {
+    font-size: 2rem;
+    font-weight: 300;
+    line-height: 1;
   }
 
   .datetime-container {

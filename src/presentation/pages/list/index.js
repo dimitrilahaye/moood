@@ -108,8 +108,9 @@ export async function renderListPage({ root, params, deps }) {
   headerNavLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      const linkElement = /** @type {HTMLAnchorElement} */ (e.target);
-      const path = linkElement.textContent === 'Accueil' ? '/' :
+      const linkElement = /** @type {HTMLAnchorElement} */ (e.target.closest('.header-nav-link') || e.target);
+      const isCta = linkElement.classList.contains('header-nav-link-cta');
+      const path = isCta ? '/' :
                    linkElement.textContent === 'Mes Moods' ? '/list' :
                    linkElement.textContent === 'Bilans' ? '/bilans' : '/';
       const router = /** @type {any} */ (window).router;

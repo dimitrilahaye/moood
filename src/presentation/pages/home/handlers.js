@@ -158,8 +158,9 @@ export function setupMoodRadioHandlers({ onCancel, onAdd }) {
 export function createNavigationClickHandler({ onNavigate }) {
   return (e) => {
     e.preventDefault();
-    const link = /** @type {HTMLAnchorElement} */ (e.target);
-    const path = link.textContent === 'Accueil' ? '/' : 
+    const link = /** @type {HTMLAnchorElement} */ (e.target.closest('.nav-link, .header-nav-link') || e.target);
+    const isCta = link.classList.contains('nav-link-cta') || link.classList.contains('header-nav-link-cta');
+    const path = isCta ? '/' : 
                  link.textContent === 'Mes Moods' ? '/list' : 
                  link.textContent === 'Bilans' ? '/bilans' : '/';
     onNavigate(path);

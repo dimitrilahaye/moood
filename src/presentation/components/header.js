@@ -26,23 +26,26 @@ export function createHeader({ currentPage = 'home' }) {
   const headerNav = document.createElement('nav');
   headerNav.className = 'header-navigation';
 
-  const homeLink = document.createElement('a');
-  homeLink.href = '#';
-  homeLink.textContent = 'Accueil';
-  homeLink.className = `header-nav-link ${currentPage === 'home' ? 'active' : ''}`;
-
   const listLink = document.createElement('a');
   listLink.href = '#';
   listLink.textContent = 'Mes Moods';
   listLink.className = `header-nav-link ${currentPage === 'list' ? 'active' : ''}`;
+
+  const homeLink = document.createElement('a');
+  homeLink.href = '#';
+  homeLink.className = `header-nav-link header-nav-link-cta ${currentPage === 'home' ? 'active' : ''}`;
+  const plusIcon = document.createElement('span');
+  plusIcon.textContent = '+';
+  plusIcon.className = 'header-nav-cta-icon';
+  homeLink.appendChild(plusIcon);
 
   const bilansLink = document.createElement('a');
   bilansLink.href = '#';
   bilansLink.textContent = 'Bilans';
   bilansLink.className = `header-nav-link ${currentPage === 'bilans' ? 'active' : ''}`;
 
-  headerNav.appendChild(homeLink);
   headerNav.appendChild(listLink);
+  headerNav.appendChild(homeLink);
   headerNav.appendChild(bilansLink);
   headerContent.appendChild(headerNav);
 
